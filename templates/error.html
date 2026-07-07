@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}System Error - LockShield{% endblock %}
+
+{% block content %}
+<section class="error-wrapper animate-slide-up">
+    <div class="glass-card error-card text-center">
+        <div class="error-icon-box">
+            <i class="fas fa-triangle-exclamation text-orange"></i>
+        </div>
+        <h1 class="error-title">Exception Triggered</h1>
+        <p class="error-msg">The application system encountered an invalid processing routine or request parameter missing signature validation.</p>
+
+        <div class="error-actions">
+            <a href="{{ url_for('home') }}" class="btn btn-primary">
+                <i class="fas fa-house"></i> Return to Safe Workspace
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

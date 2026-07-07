@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+
+{% block title %}Analysis Results - LockShield{% endblock %}
+
+{% block content %}
+<section class="results-container animate-fade-in">
+
+    <div class="glass-card score-summary-card">
+        <div class="score-header">
+            <h2>Security Scorecard</h2>
+            <div class="status-indicator-wrapper">
+                <span class="badge-glow-effect status-glow-{{ strength_class }}"></span>
+                <span class="badge status-{{ strength_class }}">
+                    {% if strength_class == 'weak' %}
+                        <i class="fas fa-shield-virus badge-icon"></i>
+                    {% elif strength_class == 'moderate' %}
+                        <i class="fas fa-shield-halved badge-icon"></i>
+                    {% elif strength_class == 'strong' %}
+                        <i class="fas fa-shield-check badge-icon"></i>
+                    {% elif strength_class == 'very-strong' %}
+                        <i class="fas fa-vault badge-icon"></i>
+                    {% endif %}
+                    {{ strength }}
+                </span>
+            </div>
+        </div>
+
+        <div class="score-display-wrapper">
+            <div class="circular-score" id="scoreCircle" data-score="{{ score | default(82) }}">
+                <div class="inner-circle">
+                    <span class="score-value" id="scoreText">{{ score }}</span>
+                    <span class="score-max">/ 100</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <h3 class="section-title">Deep Technical Inspection</h3>
+    <div class="analysis-grid">
+
+        <div class="glass-card inspection-card {% if length_result.is_valid %}status-border-green{% else %}status-border-red{% endif %}">
+            <div class="inspection-header">
+                <h4>Length Verification</h4>
+                {% if length_result.is_valid %}
+                    <i class="fas fa-circle-check status-icon text-green"></i>
+                {% else %}
+                    <i class="fas fa-circle-xmark status-icon text-red"></i>
+                {% endif %}
+            </div>
+            <div class="inspection-body">
+                <p class="inspection-desc">
+                    Password contains <strong class="highlight-text">{{ length_result.length }}</strong> characters.
+                </p>
+                <p class="inspection-feedback">
+                    {% if length_result.is_recommended %}
+                        Excellent length for resilient modern cryptographic defense.
+                    {% elif length_result.is_valid %}
+                        Meets basic requirements, but increasing length scales protection exponentially.
+                    {% else %}
+                        Too short. Minimum baseline requirement is 8 characters.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <div class="glass-card inspection-card {% if complexity_result.score >= 3 %}status-border-green{% else %}status-border-orange{% endif %}">
+            <div class="inspection-header">
+                <h4>Character Diversity</h4>
+                {% if complexity_result.score >= 3 %}
+                    <i class="fas fa-circle-check status-icon text-green"></i>
+                {% else %}
+                    <i class="fas fa-triangle-exclamation status-icon text-orange"></i>
+                {% endif %}
+            </div>
+            <div class="inspection-body">
+                <div class="complexity-pill-grid">
+                    <div class="comp-pill {% if complexity_result.uppercase %}pill-pass{% else %}pill-fail{% endif %}">
+                        <i class="fas {% if complexity_result.uppercase %}fa-circle-check{% else %}fa-circle-xmark{% endif %}"></i>
+                        <span>Uppercase</span>
+                    </div>
+                    <div class="comp-pill {% if complexity_result.lowercase %}pill-pass{% else %}pill-fail{% endif %}">
+                        <i class="fas {% if complexity_result.lowercase %}fa-circle-check{% else %}fa-circle-xmark{% endif %}"></i>
+                        <span>Lowercase</span>
+                    </div>
+                    <div class="comp-pill {% if complexity_result.digits %}pill-pass{% else %}pill-fail{% endif %}">
+                        <i class="fas {% if complexity_result.digits %}fa-circle-check{% else %}fa-circle-xmark{% endif %}"></i>
+                        <span>Numbers</span>
+                    </div>
+                    <div class="comp-pill {% if complexity_result.special %}pill-pass{% else %}pill-fail{% endif %}">
+                        <i class="fas {% if complexity_result.special %}fa-circle-check{% else %}fa-circle-xmark{% endif %}"></i>
+                        <span>Symbols</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card inspection-card {% if entropy >= 75 %}status-border-green{% elif entropy >= 50 %}status-border-blue{% else %}status-border-orange{% endif %}">
+            <div class="inspection-header">
+                <h4>Information Entropy</h4>
+                {% if entropy >= 75 %}
+                    <i class="fas fa-circle-check status-icon text-green"></i>
+                {% elif entropy >= 50 %}
+                    <i class="fas fa-circle-info status-icon text-blue"></i>
+                {% else %}
+                    <i class="fas fa-triangle-exclamation status-icon text-orange"></i>
+                {% endif %}
+            </div>
+            <div class="inspection-body">
+                <p class="inspection-desc">
+                    Calculated mathematical metric: <strong class="highlight-text">{{ entropy }} bits</strong>
+                </p>
+                <p class="inspection-feedback">
+                    {% if entropy >= 75 %}
+                        Excellent structural randomness. High computational workload resistance.
+                    {% elif entropy >= 50 %}
+                        Strong information integrity. Safe against typical offline dictionary attacks.
+                    {% elif entropy >= 28 %}
+                        Moderate structural predictability. Vulnerable to optimized GPU array scaling.
+                    {% else %}
+                        Critically predictable. Susceptible to instantaneous algorithmic matching.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <div class="glass-card inspection-card {% if pattern_result.has_patterns %}status-border-orange{% else %}status-border-green{% endif %}">
+            <div class="inspection-header">
+                <h4>Pattern Detection</h4>
+                {% if pattern_result.has_patterns %}
+                    <i class="fas fa-triangle-exclamation status-icon text-orange"></i>
+                {% else %}
+                    <i class="fas fa-circle-check status-icon text-green"></i>
+                {% endif %}
+            </div>
+            <div class="inspection-body">
+                {% if pattern_result.has_patterns %}
+                    <p class="inspection-desc warning-highlight">Algorithmic repetitions detected:</p>
+                    <p class="inspection-feedback text-orange font-mono">{{ pattern_result.patterns | join(", ") }}</p>
+                {% else %}
+                    <p class="inspection-desc text-green">Structure verified.</p>
+                    <p class="inspection-feedback">No predictable sequences, keyboard walking, or standard spatial tracking patterns found.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="glass-card inspection-card {% if breach_result.breached %}status-border-red{% else %}status-border-green{% endif %}">
+            <div class="inspection-header">
+                <h4>Compromised Repository Check</h4>
+                {% if breach_result.breached %}
+                    <i class="fas fa-circle-xmark status-icon text-red"></i>
+                {% else %}
+                    <i class="fas fa-circle-check status-icon text-green"></i>
+                {% endif %}
+            </div>
+            <div class="inspection-body">
+                {% if breach_result.breached %}
+                    <p class="inspection-desc danger-highlight"><i class="fas fa-skull"></i> Exposed Credential!</p>
+                    <p class="inspection-feedback">This exact character grouping has been identified within public dark-web data dumps. Discard immediately.</p>
+                {% else %}
+                    <p class="inspection-desc text-green">No exposure records.</p>
+                    <p class="inspection-feedback">This password fingerprint does not match any current verified historical exposure leaks.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="glass-card inspection-card {% if personal_info_result.contains_personal_info %}status-border-red{% else %}status-border-green{% endif %}">
+            <div class="inspection-header">
+                <h4>Identity Context Leak</h4>
+                {% if personal_info_result.contains_personal_info %}
+                    <i class="fas fa-circle-xmark status-icon text-red"></i>
+                {% else %}
+                    <i class="fas fa-circle-check status-icon text-green"></i>
+                {% endif %}
+            </div>
+            <div class="inspection-body">
+                {% if personal_info_result.contains_personal_info %}
+                    <p class="inspection-desc danger-highlight">Contextual vulnerabilities found:</p>
+                    <div class="context-leak-tags">
+                        {% for match in personal_info_result.matches %}
+                            <span class="leak-tag"><i class="fas fa-user-tag"></i> {{ match }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="inspection-desc text-green">Zero configuration leaks.</p>
+                    <p class="inspection-feedback">No correlation detected between the password string and provided user profile traits.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-card recommendation-card">
+        <div class="recommendation-header">
+            <i class="fas fa-lightbulb recommendation-icon"></i>
+            <h3>Remediation Blueprint</h3>
+        </div>
+        <ul class="recommendation-list">
+            {% for recommendation in recommendations %}
+                <li>
+                    <i class="fas fa-arrow-right-long text-blue"></i>
+                    <span>{{ recommendation }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="action-footer-nav">
+        <a href="{{ url_for('home') }}" class="btn btn-primary">
+            <i class="fas fa-rotate-left"></i> Analyze Another Password
+        </a>
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">
+            <i class="fas fa-house"></i> Return Home
+        </a>
+    </div>
+</section>
+{% endblock %}
